@@ -1,0 +1,10 @@
+# torch and torchvision are pinned as a matching pair -- torchvision is built
+# against a specific torch version, and a mismatched pair fails on import.
+# The +cpu wheels come from the pytorch CPU index: the default PyPI linux
+# wheels bundle CUDA and triple the image size.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.13.0+cpu
+torchvision==0.28.0+cpu
+Pillow>=10.0
+boto3>=1.34
+PyMySQL>=1.1
