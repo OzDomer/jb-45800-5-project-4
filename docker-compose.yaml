@@ -15,6 +15,23 @@ services:
       retries: 5
       start_period: 30s
 
+  backend:
+    container_name: pet-expressions-backend
+    build: ./backend
+    ports:
+      - 3000:3000
+    environment:
+      DB_HOST: database
+      AWS_ENDPOINT: http://localstack:4566
+      SQS_ENDPOINT: http://localstack:4566
+      AWS_PUBLIC_URL: http://localhost:4566
+      CORS_ORIGIN: http://localhost:5173
+    depends_on:
+      database:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+
   inference:
     container_name: pet-expressions-inference
     build: ./inference

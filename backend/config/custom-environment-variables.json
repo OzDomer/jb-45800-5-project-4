@@ -1,0 +1,44 @@
+{
+    "app": {
+        "port": "PORT"
+    },
+    "cors": {
+        "origin": "CORS_ORIGIN"
+    },
+    "db": {
+        "host": "DB_HOST",
+        "port": "DB_PORT",
+        "username": "DB_USER",
+        "password": "DB_PASSWORD",
+        "database": "DB_NAME"
+    },
+    "aws": {
+        "bucket": "S3_BUCKET",
+        "publicUrl": "AWS_PUBLIC_URL",
+        "connection": {
+            "region": "S3_REGION",
+            "endpoint": "AWS_ENDPOINT",
+            "credentials": {
+                "accessKeyId": "AWS_ACCESS_KEY_ID",
+                "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+            }
+        }
+    },
+    "sqs": {
+        "region": "SQS_REGION",
+        "endpoint": "SQS_ENDPOINT",
+        "accessKeyId": "AWS_ACCESS_KEY_ID",
+        "secretAccessKey": "AWS_SECRET_ACCESS_KEY",
+        "queues": {
+            "jobs": "SQS_QUEUE_JOBS",
+            "results": "SQS_QUEUE_RESULTS"
+        },
+        "visibilityTimeoutSeconds": "SQS_VISIBILITY_TIMEOUT_SECONDS",
+        "waitTimeSeconds": "SQS_WAIT_TIME_SECONDS",
+        "pollIntervalMs": "SQS_POLL_INTERVAL_MS",
+        "maxReceiveCount": "SQS_MAX_RECEIVE_COUNT"
+    },
+    "upload": {
+        "maxFileSizeMb": "UPLOAD_MAX_FILE_SIZE_MB"
+    }
+}

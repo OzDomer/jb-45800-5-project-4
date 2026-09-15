@@ -1,0 +1,45 @@
+{
+    "app": {
+        "port": 3000
+    },
+    "cors": {
+        "origin": "http://localhost:5173"
+    },
+    "db": {
+        "host": "localhost",
+        "port": 3306,
+        "username": "root",
+        "password": "",
+        "database": "pet_expressions"
+    },
+    "aws": {
+        "bucket": "pet-expressions",
+        "publicUrl": "http://localhost:4566",
+        "connection": {
+            "region": "us-east-1",
+            "forcePathStyle": true,
+            "credentials": {
+                "accessKeyId": "test",
+                "secretAccessKey": "test"
+            },
+            "endpoint": "http://localhost:4566"
+        }
+    },
+    "sqs": {
+        "region": "us-east-1",
+        "endpoint": "http://localhost:4566",
+        "accessKeyId": "test",
+        "secretAccessKey": "test",
+        "queues": {
+            "jobs": "inference-jobs-queue",
+            "results": "inference-results-queue"
+        },
+        "visibilityTimeoutSeconds": 60,
+        "waitTimeSeconds": 20,
+        "pollIntervalMs": 5000,
+        "maxReceiveCount": 5
+    },
+    "upload": {
+        "maxFileSizeMb": 10
+    }
+}
