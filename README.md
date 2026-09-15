@@ -1,5 +1,7 @@
 # Pet Expressions
 
+[![tests](https://github.com/OzDomer/jb-45800-5-project-4/actions/workflows/tests.yml/badge.svg)](https://github.com/OzDomer/jb-45800-5-project-4/actions/workflows/tests.yml)
+
 A browser app that reads a pet's facial expression from a photo. Upload a
 picture of a cat or a dog (or click one of the built-in samples) and a
 fine-tuned ResNet-18 answers with **Angry / Sad / happy / Other**, along
