@@ -17,7 +17,7 @@ app_config = {
         },
         "visibility_timeout_seconds": int(_env("SQS_VISIBILITY_TIMEOUT_SECONDS", "60")),
         "wait_time_seconds": int(_env("SQS_WAIT_TIME_SECONDS", "20")),
-        "poll_interval_ms": int(_env("SQS_POLL_INTERVAL_MS", "5000")),
+        "poll_interval_ms": int(_env("SQS_POLL_INTERVAL_MS", "500")),
         "max_receive_count": int(_env("SQS_MAX_RECEIVE_COUNT", "5")),
     },
     "s3": {

@@ -12,7 +12,7 @@ def create_inference_worker(worker_name: str, queue_name: str,
                             process_job, on_permanent_failure):
     running = False
 
-    def poll_once() -> None:
+    def poll_once() -> bool:
         logger.info(f"[{worker_name}] Fetching message from queue {queue_name}...")
 
         messages = receive_queue_messages(queue_name, 1)
@@ -63,14 +63,21 @@ def create_inference_worker(worker_name: str, queue_name: str,
                 # after max_receive_count receives.
                 log_error(f"[{worker_name}] Job {job_id} failed, will retry", error)
 
+        return len(messages) > 0
+
     def poll_loop() -> None:
         while running:
+            handled = False
             try:
-                poll_once()
+                handled = poll_once()
             except Exception as error:
                 log_error(f"[{worker_name}] Failed to fetch message from queue", error)
 
-            time.sleep(app_config["sqs"]["poll_interval_ms"] / 1000)
+            # A busy queue is drained back-to-back -- long polling is the
+            # throttle when it is empty, the sleep only breaks a hot loop
+            # when the receive itself keeps failing.
+            if not handled:
+                time.sleep(app_config["sqs"]["poll_interval_ms"] / 1000)
 
     def start() -> None:
         nonlocal running

@@ -9,7 +9,7 @@ export function createResultsConsumer(): { start: () => void; stop: () => void }
   let running = false;
   const queueName = appConfig.sqs.queues.results;
 
-  async function pollOnce(): Promise<void> {
+  async function pollOnce(): Promise<boolean> {
     const messages = await receiveQueueMessages(queueName, 1);
 
     for (const message of messages) {
@@ -48,17 +48,25 @@ export function createResultsConsumer(): { start: () => void; stop: () => void }
         logError(`[results] Failed to handle result for ${jobId}, will retry`, error);
       }
     }
+
+    return messages.length > 0;
   }
 
   async function pollLoop(): Promise<void> {
     while (running) {
+      let handled = false;
       try {
-        await pollOnce();
+        handled = await pollOnce();
       } catch (error) {
         logError('[results] Failed to fetch message from queue', error);
       }
 
-      await new Promise((resolve) => setTimeout(resolve, appConfig.sqs.pollIntervalMs));
+      // a busy queue is drained back-to-back -- long polling throttles the
+      // empty case, the sleep only breaks a hot loop when the receive
+      // itself keeps failing
+      if (!handled) {
+        await new Promise((resolve) => setTimeout(resolve, appConfig.sqs.pollIntervalMs));
+      }
     }
   }
 

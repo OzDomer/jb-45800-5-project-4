@@ -36,7 +36,7 @@
         },
         "visibilityTimeoutSeconds": 60,
         "waitTimeSeconds": 20,
-        "pollIntervalMs": 5000,
+        "pollIntervalMs": 500,
         "maxReceiveCount": 5
     },
     "upload": {

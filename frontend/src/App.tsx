@@ -52,6 +52,15 @@ export default function App() {
     }
     socket.on('job:done', onJobDone);
 
+    // a reconnected socket is a NEW socket in no rooms -- re-join, and the
+    // GET inside watchJob also recovers a result that landed while offline
+    function onConnect() {
+      if (watchedJobId.current) {
+        watchJob(watchedJobId.current);
+      }
+    }
+    socket.on('connect', onConnect);
+
     // the demo thumbnails are optional -- the app works without them
     getSamples().then(setSamples).catch(() => {});
 
@@ -63,6 +72,7 @@ export default function App() {
 
     return () => {
       socket.off('job:done', onJobDone);
+      socket.off('connect', onConnect);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -102,9 +102,10 @@ Socket.io: emit `job:watch` with a jobId to join its room; receive
 `job:done` with the full job payload when inference finishes.
 
 Uploads are capped at 10MB (`upload.maxFileSizeMb` in the backend config)
-and must be image mimetypes; violations get friendly `400`/`413` answers.
+and must declare an image mimetype; violations get friendly `400`/`413`
+answers.
 
-## Honest notes
+## Notes
 
 - The model is imperfect and the built-in samples do not hide it: the
   shark comes back **Other** (correct — it was trained on cats and dogs),
@@ -114,6 +115,15 @@ and must be image mimetypes; violations get friendly `400`/`413` answers.
   what lets the browser load images straight from
   `http://localhost:4566/...`. Real AWS S3 would 403 — production would
   need a bucket policy or presigned URLs.
+- The backend validates the *declared* mimetype — a client lying about it
+  (`curl -F "image=@evil.bin;type=image/png"`) gets past the `400`. The
+  real gate is the worker: bytes that do not decode as an image take the
+  deterministic-failure path and the job comes back `failed`. Sniffing
+  magic bytes server-side would be the stricter upgrade.
+- Room isolation is "a UUIDv4 is unguessable", not authentication —
+  `job:watch` joins any room a client names. Guessing a foreign job id is
+  the attack, and 122 random bits is the defense. Enough here; real auth
+  would gate the join.
 - The results consumer lives inside the backend process. With multiple
   backend replicas, each socket client is connected to one replica while
   any replica may consume the result — rooms would need a socket.io
