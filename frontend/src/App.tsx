@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { createPrediction, getPrediction } from './api/client';
-import type { JobResponse } from './api/client';
+import { createPrediction, createSamplePrediction, getPrediction, getSamples } from './api/client';
+import type { JobResponse, SampleImage } from './api/client';
 import PredictionResult from './components/PredictionResult';
 import UploadForm from './components/UploadForm';
+import type { Selection } from './components/UploadForm';
 import { getSocket } from './io/socket';
 import './App.css';
 
@@ -10,6 +11,7 @@ const LAST_JOB_KEY = 'lastJobId';
 
 export default function App() {
   const [job, setJob] = useState<JobResponse | null>(null);
+  const [samples, setSamples] = useState<SampleImage[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const watchedJobId = useRef('');
@@ -50,6 +52,9 @@ export default function App() {
     }
     socket.on('job:done', onJobDone);
 
+    // the demo thumbnails are optional -- the app works without them
+    getSamples().then(setSamples).catch(() => {});
+
     // refresh recovery: resume watching the last job of this tab
     const lastJobId = sessionStorage.getItem(LAST_JOB_KEY);
     if (lastJobId) {
@@ -62,11 +67,13 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleUpload(file: File) {
+  async function handleUpload(selection: Selection) {
     setErrorMessage('');
     setUploading(true);
     try {
-      const created = await createPrediction(file);
+      const created = selection.kind === 'file'
+        ? await createPrediction(selection.file)
+        : await createSamplePrediction(selection.sample.name);
       sessionStorage.setItem(LAST_JOB_KEY, created.jobId);
       setJob(created);
       watchJob(created.jobId);
@@ -81,11 +88,13 @@ export default function App() {
     <main className="app">
       <h1>Pet Expressions</h1>
       <p className="subtitle">
-        Upload a pet photo and a ResNet-18 model will read its expression:
-        Angry, Sad, happy, or Other.
+        Our ResNet-18 model reads your cat's or dog's facial expression:
+        Angry, Sad, or happy. It was trained on cats and dogs only, so a
+        photo of any other animal (or anything else) will most likely come
+        back as Other.
       </p>
 
-      <UploadForm uploading={uploading} onUpload={handleUpload} />
+      <UploadForm samples={samples} uploading={uploading} onUpload={handleUpload} />
 
       {errorMessage && <p className="error">{errorMessage}</p>}
       {job && <PredictionResult job={job} />}

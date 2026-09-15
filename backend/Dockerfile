@@ -11,4 +11,5 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY config ./config
+COPY seed-images ./seed-images
 CMD ["node", "dist/server.js"]

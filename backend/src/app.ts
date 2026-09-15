@@ -5,6 +5,7 @@ import { appConfig } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 import predictionsRouter from './routers/predictions';
+import samplesRouter from './routers/samples';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/predictions', predictionsRouter);
+app.use('/api/samples', samplesRouter);
 
 app.use(errorHandler);
 

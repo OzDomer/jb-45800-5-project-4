@@ -39,6 +39,43 @@
   display: none;
 }
 
+.samples {
+  width: 100%;
+}
+
+.samples-title {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.samples-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.sample-thumb {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.sample-thumb img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.sample-thumb.selected {
+  border-color: var(--accent);
+}
+
 .preview,
 .result-image {
   max-width: 100%;

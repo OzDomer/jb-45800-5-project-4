@@ -26,6 +26,32 @@ export async function createPrediction(image: File): Promise<JobResponse> {
   return body;
 }
 
+export interface SampleImage {
+  name: string;
+  imageUrl: string;
+}
+
+export async function getSamples(): Promise<SampleImage[]> {
+  const response = await fetch(`${API_URL}/samples`);
+  if (!response.ok) {
+    throw new Error('Could not load the sample images');
+  }
+  return response.json();
+}
+
+export async function createSamplePrediction(name: string): Promise<JobResponse> {
+  const response = await fetch(`${API_URL}/predictions/sample`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  const body = await response.json();
+  if (!response.ok) {
+    throw new Error(body.message ?? 'The prediction request failed, please try again');
+  }
+  return body;
+}
+
 export async function getPrediction(jobId: string): Promise<JobResponse> {
   const response = await fetch(`${API_URL}/predictions/${jobId}`);
   const body = await response.json();

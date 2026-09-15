@@ -6,6 +6,7 @@ import { ensureAllQueuesExist } from './connectors/sqs.connector';
 import sequelize from './db/sequelize';
 import { initIo } from './io/io';
 import { logError, logger } from './logger';
+import { seedSampleImagesIfMissing } from './services/samples.service';
 import { createResultsConsumer } from './workers/resultsConsumer';
 
 async function start(): Promise<void> {
@@ -13,6 +14,7 @@ async function start(): Promise<void> {
   logger.info('Connected to MySQL');
 
   await createAppBucketIfNotExist();
+  await seedSampleImagesIfMissing();
   await ensureAllQueuesExist();
 
   const httpServer = createServer(app);
