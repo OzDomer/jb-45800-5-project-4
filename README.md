@@ -105,6 +105,20 @@ Uploads are capped at 10MB (`upload.maxFileSizeMb` in the backend config)
 and must actually be images — the backend sniffs the magic bytes
 (jpeg/png/gif/webp/bmp); violations get friendly `400`/`413` answers.
 
+## Tests
+
+The two spots where logic (rather than plumbing) lives are unit-tested:
+
+```bash
+# magic-byte detection: five real format headers + seven forgeries
+cd backend && npm test
+
+# the worker's failure contract: deterministic failures are recorded and
+# deleted, transient ones survive for redelivery, poison messages are
+# dropped -- runs inside the already-built image, no extra dependencies
+docker compose run --rm inference python -m unittest discover -s src/tests -t . -v
+```
+
 ## Notes
 
 - The model is imperfect and the built-in samples do not hide it: the

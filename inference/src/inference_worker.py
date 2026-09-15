@@ -91,4 +91,6 @@ def create_inference_worker(worker_name: str, queue_name: str,
         nonlocal running
         running = False
 
-    return SimpleNamespace(start=start, stop=stop)
+    # poll_once is exposed as the unit-test seam -- tests drive single
+    # polls without entering the blocking loop
+    return SimpleNamespace(start=start, stop=stop, poll_once=poll_once)
