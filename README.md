@@ -102,8 +102,8 @@ Socket.io: emit `job:watch` with a jobId to join its room; receive
 `job:done` with the full job payload when inference finishes.
 
 Uploads are capped at 10MB (`upload.maxFileSizeMb` in the backend config)
-and must declare an image mimetype; violations get friendly `400`/`413`
-answers.
+and must actually be images — the backend sniffs the magic bytes
+(jpeg/png/gif/webp/bmp); violations get friendly `400`/`413` answers.
 
 ## Notes
 
@@ -115,11 +115,13 @@ answers.
   what lets the browser load images straight from
   `http://localhost:4566/...`. Real AWS S3 would 403 — production would
   need a bucket policy or presigned URLs.
-- The backend validates the *declared* mimetype — a client lying about it
-  (`curl -F "image=@evil.bin;type=image/png"`) gets past the `400`. The
-  real gate is the worker: bytes that do not decode as an image take the
-  deterministic-failure path and the job comes back `failed`. Sniffing
-  magic bytes server-side would be the stricter upgrade.
+- Upload validation is layered: the backend checks the declared mimetype
+  (courtesy 400), then **enforces the content** by sniffing magic bytes —
+  a client lying about the type (`curl -F "image=@evil.bin;type=image/png"`)
+  is rejected on the bytes, and the stored key/ContentType come from the
+  sniffed format, never the client's claim. A file that fakes a valid
+  header but is not decodable still gets caught by the final gate: the
+  worker's decode marks the job `failed`.
 - Room isolation is "a UUIDv4 is unguessable", not authentication —
   `job:watch` joins any room a client names. Guessing a foreign job id is
   the attack, and 122 random bits is the defense. Enough here; real auth

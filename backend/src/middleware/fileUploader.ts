@@ -3,7 +3,6 @@ import config from 'config';
 import { randomUUID } from "crypto";
 import type { NextFunction, Request, Response } from "express";
 import { UploadedFile } from "express-fileupload";
-import path from "path";
 import s3Client from "../aws/aws";
 
 declare global {
@@ -16,10 +15,12 @@ declare global {
 
 export default async function fileUploader(request: Request, response: Response, next: NextFunction) {
     // validateImageFile already guaranteed a single image file is present
+    // and sniffed its real format from the bytes
     const image = request.files!.image as UploadedFile;
 
-    // upload to the cloud under a random key
-    const key = `${randomUUID()}${path.extname(image.name)}`;
+    // upload to the cloud under a random key -- extension and content type
+    // come from the SNIFFED format, not the client's filename or claim
+    const key = `${randomUUID()}${request.imageType.extension}`;
     try {
         const upload = new Upload({
             client: s3Client,
@@ -27,7 +28,7 @@ export default async function fileUploader(request: Request, response: Response,
                 Bucket: config.get<string>('aws.bucket'),
                 Key: key,
                 Body: image.data,
-                ContentType: image.mimetype
+                ContentType: request.imageType.mimetype
             }
         });
         await upload.done();

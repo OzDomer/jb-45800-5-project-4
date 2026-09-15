@@ -1,5 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
 import { appConfig } from '../config';
+import { detectImageType } from '../utils/imageSignature';
+import type { DetectedImageType } from '../utils/imageSignature';
+
+declare global {
+    namespace Express {
+        interface Request {
+            imageType: DetectedImageType
+        }
+    }
+}
 
 export default function validateImageFile(
     request: Request,
@@ -29,6 +39,15 @@ export default function validateImageFile(
         response.status(400).json({ message: 'Only image files are supported' });
         return;
     }
+
+    // the declared mimetype above is a courtesy check -- the CONTENT is
+    // what gets enforced: no recognized image magic bytes, no upload
+    const imageType = detectImageType(image.data);
+    if (!imageType) {
+        response.status(400).json({ message: 'The file content is not a recognized image format' });
+        return;
+    }
+    request.imageType = imageType;
 
     next();
 }
